@@ -14,7 +14,7 @@ class MachineVsMachineScreen extends StatelessWidget {
       create: (_) => MachineVsMachineProvider()..loadState(),
       child: PopScope(
         canPop: false,
-        child: const MachineVsMachineScreen(),
+        child: const MachineVsMachineView(),
       ),
     );
   }
