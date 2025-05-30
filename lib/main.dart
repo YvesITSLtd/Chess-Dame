@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:rwandafunfacts/screens/home_screen.dart';
 import 'package:rwandafunfacts/screens/facts_screen.dart';
 import 'package:rwandafunfacts/screens/ask_screen.dart';
 import 'package:rwandafunfacts/screens/about_screen.dart';
 
-void main() {
+void main() async {
+  // Load environment variables
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 

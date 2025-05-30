@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:developer' as developer;
 
 class AIService {
-  static const String geminiApiKey = 'AIzaSyCeVKM9MWum99TvM_YHoTIU-o-9nYwuFcU';
+  // Get API key from environment variables
+  static String get geminiApiKey => dotenv.env['GEMINI_API_KEY'] ?? '';
   static const String geminiModel = 'gemini-1.0-pro';
 
   // Tracking response source
@@ -22,6 +24,12 @@ class AIService {
   void resetAPIFailureFlag() {
     _apiCallFailed = false;
     developer.log('API failure flag reset - will try API calls again');
+  }
+
+  // Validate that API key is available
+  bool get hasValidApiKey {
+    final apiKey = geminiApiKey;
+    return apiKey.isNotEmpty && apiKey != 'your_api_key_here';
   }
 
   // Initialize with previous conversation if available
@@ -70,6 +78,27 @@ class AIService {
   Future<String> generateRwandaFacts({required String prompt}) async {
     _responseSource = ''; // Reset the source
     developer.log('Starting Gemini API call for prompt: $prompt');
+
+    // Check if API key is available
+    if (!hasValidApiKey) {
+      developer.log('No valid API key found - using fallback responses');
+      _apiCallFailed = true;
+      _responseSource = 'FALLBACK';
+      
+      // Add user message to conversation history
+      _conversationHistory.add(<String, String>{
+        'role': 'user',
+        'content': prompt,
+      });
+      
+      final response = _getPreDefinedResponse(prompt);
+      _conversationHistory.add(<String, String>{
+        'role': 'assistant',
+        'content': response,
+      });
+      saveConversationHistory();
+      return response;
+    }
 
     // Check if this is a simple greeting
     final isGreeting = _greetingPatterns.contains(prompt.toLowerCase().trim());
