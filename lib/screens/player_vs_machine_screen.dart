@@ -119,30 +119,57 @@ class PlayerVsMachineView extends StatelessWidget {
     bool isCurrentTurn,
     IconData icon,
   ) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withAlpha(25),
-        borderRadius: BorderRadius.circular(16),
-        border: isCurrentTurn
-            ? Border.all(color: Colors.yellow.withAlpha(179), width: 2)
-            : null,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FaIcon(icon, color: color, size: 20),
-          const SizedBox(width: 8),
-          Text(
-            '$name${isCurrentTurn ? "'s Turn" : ""}',
-            style: TextStyle(
-              color: color,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
+    return Consumer<PlayerVsMachineProvider>(
+      builder: (context, provider, _) {
+        final score = provider.getPlayerScore(color == Colors.white ? PieceColor.white : PieceColor.black);
+        
+        return Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: color.withAlpha(25),
+            borderRadius: BorderRadius.circular(16),
+            border: isCurrentTurn
+                ? Border.all(color: Colors.yellow.withAlpha(179), width: 2)
+                : null,
           ),
-        ],
-      ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FaIcon(icon, color: color, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    '$name${isCurrentTurn ? "'s Turn" : ""}',
+                    style: TextStyle(
+                      color: color,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withAlpha(51),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  'Score: $score',
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -222,8 +249,8 @@ class ChessTile extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               color: isDark
-                  ? const Color(0xFF769656)
-                  : const Color(0xFFEEEED2),
+                  ? const Color(0xFF3E2723) // Dark brown/metallic
+                  : const Color(0xFF8D6E63), // Light brown/metallic
               border: isSelected
                   ? Border.all(color: Colors.blue, width: 3)
                   : isValidMove
@@ -286,10 +313,24 @@ class ChessTile extends StatelessWidget {
     }
 
     return Center(
-      child: FaIcon(
-        icon,
-        color: piece.color == PieceColor.white ? Colors.white : Colors.black,
-        size: 32,
+      child: Container(
+        decoration: piece.color == PieceColor.white 
+            ? BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 2,
+                    offset: const Offset(1, 1),
+                  ),
+                ],
+              )
+            : null,
+        child: FaIcon(
+          icon,
+          color: piece.color == PieceColor.white ? Colors.white : Colors.black,
+          size: 32,
+        ),
       ),
     );
   }

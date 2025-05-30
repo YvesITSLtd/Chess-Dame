@@ -403,8 +403,8 @@ class ChessTile extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               color: isDark
-                  ? const Color(0xFF769656)
-                  : const Color(0xFFEEEED2),
+                  ? const Color(0xFF3E2723) // Dark brown/metallic
+                  : const Color(0xFF8D6E63), // Light brown/metallic,
               border: isSelected
                   ? Border.all(color: Colors.blue, width: 3)
                   : isValidMove

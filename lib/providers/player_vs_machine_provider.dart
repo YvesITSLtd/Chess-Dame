@@ -332,6 +332,18 @@ class PlayerVsMachineProvider with ChangeNotifier {
     }
   }
 
+  int getPlayerScore(PieceColor color) {
+    return _state.pieces
+        .where((p) => p.color != color && p.isCaputured)
+        .fold(0, (sum, piece) => sum + piece.points);
+  }
+
+  List<ChessPiece> getCapturedPieces(PieceColor capturedBy) {
+    return _state.pieces
+        .where((p) => p.color != capturedBy && p.isCaputured)
+        .toList();
+  }
+
   ChessPiece? _getPieceAt(String position) {
     try {
       return _state.pieces.firstWhere(
