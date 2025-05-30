@@ -29,15 +29,9 @@ class MachineVsMachineProvider with ChangeNotifier {
   String? get selectedPosition => _state.selectedPosition;
   PieceColor get currentTurn => _state.currentTurn;
   bool get gameOver => _state.gameOver;
+  PieceColor? get winner => _state.winner;
   bool get isAutoPlaying => _isAutoPlaying;
   String get difficulty => _difficulty;
-
-  // Getters for game state
-  bool get gameOver => _state.gameOver;
-  PieceColor? get winner => _state.winner;
-  PieceColor get currentTurn => _state.currentTurn;
-  String? get selectedPosition => _state.selectedPosition;
-  List<ChessPiece> get pieces => _state.pieces;
 
   // Load and Save state
   Future<void> loadState() async {
