@@ -1,63 +1,42 @@
-import 'package:audioplayers/audioplayers.dart';
-import 'dart:math';
-import 'dart:typed_data';
+import 'package:flutter/services.dart';
 
 class SoundManager {
   static final SoundManager _instance = SoundManager._internal();
   factory SoundManager() => _instance;
   SoundManager._internal();
 
-  AudioPlayer? _audioPlayer;
+  bool _soundEnabled = true;
 
-  AudioPlayer get _player {
-    _audioPlayer ??= AudioPlayer();
-    return _audioPlayer!;
+  bool get soundEnabled => _soundEnabled;
+
+  void setSoundEnabled(bool enabled) {
+    _soundEnabled = enabled;
   }
 
   Future<void> playMoveSound() async {
-    await _player.play(
-      BytesSource(
-        Uint8List.fromList(
-          _generateTone(frequency: 440, duration: 100, volume: 0.3)
-        )
-      )
-    );
+    if (!_soundEnabled) return;
+    try {
+      // Use system click sound for regular moves
+      await SystemSound.play(SystemSoundType.click);
+    } catch (e) {
+      // Silently handle any sound errors
+      print('Move sound error (non-critical): $e');
+    }
   }
 
   Future<void> playCaptureSound() async {
-    await _player.play(
-      BytesSource(
-        Uint8List.fromList(
-          _generateTone(frequency: 880, duration: 150, volume: 0.5)
-        )
-      )
-    );
-  }
-
-  List<int> _generateTone({
-    required double frequency,
-    required int duration,
-    required double volume
-  }) {
-    final sampleRate = 44100;
-    final samples = (sampleRate * duration / 1000).round();
-    final List<int> data = [];
-
-    for (var i = 0; i < samples; i++) {
-      final t = i / sampleRate;
-      final amplitude = (volume * 32767 * sin(2 * pi * frequency * t)).round();
-      data.add(amplitude & 0xFF);
-      data.add((amplitude >> 8) & 0xFF);
+    if (!_soundEnabled) return;
+    try {
+      // Use system alert sound for captures (more dramatic)
+      await SystemSound.play(SystemSoundType.alert);
+    } catch (e) {
+      // Silently handle any sound errors
+      print('Capture sound error (non-critical): $e');
     }
-
-    return data;
   }
 
+  // Keep this method for backward compatibility but make it a no-op
   Future<void> dispose() async {
-    if (_audioPlayer != null) {
-      await _audioPlayer!.stop();
-      await _audioPlayer!.dispose();
-      _audioPlayer = null;
-    }
+    // Nothing to dispose for system sounds
   }
 }

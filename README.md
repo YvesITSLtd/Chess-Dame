@@ -10,12 +10,13 @@ Contact: +250791891254
 
 ## Features
 - Classic chess rules and board
+- **Piece move highlighting** - Shows possible moves when you touch a piece
 - Three game modes:
   - Player vs Player
   - Player vs Machine (with difficulty levels)
   - Machine vs Machine (auto-play)
 - Animated, responsive chessboard UI
-- Sound and vibration feedback for moves and captures
+- System sound and vibration feedback for moves and captures
 - Game state saving and loading
 - Platform support: Web, Windows, Linux, macOS, Android, iOS
 
@@ -24,7 +25,6 @@ Contact: +250791891254
 - `lib/providers/` – Game state management (Provider pattern)
 - `lib/screens/` – UI screens for each game mode
 - `lib/utils/` – Utility classes (e.g., sound manager)
-- `assets/sounds/` – Sound effects for moves and captures
 - `web/`, `windows/`, `linux/`, `macos/`, `android/`, `ios/` – Platform-specific files
 
 ## Getting Started
@@ -45,8 +45,8 @@ Contact: +250791891254
    Or build for your target platform (see [Flutter docs](https://docs.flutter.dev/)).
 
 ## Customization
-- Change sounds in `assets/sounds/`
 - Update icons in `web/icons/` and platform folders
+- Sound feedback uses system sounds (reliable across all platforms)
 
 ## Resources
 - [Flutter documentation](https://docs.flutter.dev/)
