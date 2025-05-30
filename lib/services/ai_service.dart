@@ -7,7 +7,7 @@ import 'dart:developer' as developer;
 class AIService {
   // Get API key from environment variables
   static String get geminiApiKey => dotenv.env['GEMINI_API_KEY'] ?? '';
-  static const String geminiModel = 'gemini-pro';
+  static String get geminiModel => dotenv.env['GEMINI_MODEL'] ?? 'gemini-2.0-flash-exp';
 
   // Tracking response source
   String _responseSource = '';
@@ -228,7 +228,7 @@ Your response should:
   // Call Gemini API
   Future<String> _callGeminiAPI(String prompt) async {
     final url = Uri.parse(
-      'https://generativelanguage.googleapis.com/v1/models/$geminiModel:generateContent?key=$geminiApiKey'
+      'https://generativelanguage.googleapis.com/v1beta/models/$geminiModel:generateContent?key=$geminiApiKey'
     );
 
     final Map<String, dynamic> requestBody = {
