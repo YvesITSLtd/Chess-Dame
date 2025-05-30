@@ -210,6 +210,12 @@ class ChessTile extends StatelessWidget {
         );
 
         final isSelected = provider.selectedPosition == position;
+        final selectedPiece = provider.selectedPosition != null
+            ? provider.pieces.firstWhereOrNull(
+                (p) => p.position == provider.selectedPosition && !p.isCaputured)
+            : null;
+        final isValidMove = selectedPiece != null &&
+            provider.getValidMoves(selectedPiece).contains(position);
 
         return GestureDetector(
           onTap: () => provider.selectPosition(position),
@@ -220,9 +226,36 @@ class ChessTile extends StatelessWidget {
                   : const Color(0xFFEEEED2),
               border: isSelected
                   ? Border.all(color: Colors.blue, width: 3)
-                  : null,
+                  : isValidMove
+                      ? Border.all(color: Colors.yellow.withOpacity(0.7), width: 3)
+                      : null,
             ),
-            child: piece != null ? _buildPieceIcon(piece) : null,
+            child: Stack(
+              children: [
+                if (piece != null)
+                  Center(
+                    child: _buildPieceIcon(piece),
+                  ),
+                if (isValidMove && piece != null)
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.red.withOpacity(0.3),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                if (isValidMove && piece == null)
+                  Center(
+                    child: Container(
+                      width: 16,
+                      height: 16,
+                      decoration: BoxDecoration(
+                        color: Colors.yellow.withOpacity(0.7),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         );
       },

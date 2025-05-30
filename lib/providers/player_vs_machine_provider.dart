@@ -163,9 +163,173 @@ class PlayerVsMachineProvider with ChangeNotifier {
   }
 
   List<String> getValidMoves(ChessPiece piece) {
-    // Implementation of valid moves calculation
-    // This would be moved to a shared game logic utility class
-    return [];
+    if (piece.isCaputured) return [];
+
+    List<String> validMoves = [];
+    final file = piece.position[0];
+    final rank = int.parse(piece.position[1]);
+    final fileIndex = file.codeUnitAt(0) - 'a'.codeUnitAt(0);
+    final rankIndex = rank - 1;
+
+    switch (piece.type) {
+      case PieceType.pawn:
+        _getPawnMoves(piece, fileIndex, rankIndex, validMoves);
+        break;
+      case PieceType.knight:
+        _getKnightMoves(piece, fileIndex, rankIndex, validMoves);
+        break;
+      case PieceType.bishop:
+        _getBishopMoves(piece, fileIndex, rankIndex, validMoves);
+        break;
+      case PieceType.rook:
+        _getRookMoves(piece, fileIndex, rankIndex, validMoves);
+        break;
+      case PieceType.queen:
+        _getBishopMoves(piece, fileIndex, rankIndex, validMoves);
+        _getRookMoves(piece, fileIndex, rankIndex, validMoves);
+        break;
+      case PieceType.king:
+        _getKingMoves(piece, fileIndex, rankIndex, validMoves);
+        break;
+    }
+
+    return validMoves;
+  }
+
+  void _getPawnMoves(ChessPiece pawn, int fileIndex, int rankIndex, List<String> validMoves) {
+    final direction = pawn.color == PieceColor.white ? 1 : -1;
+    final startingRank = pawn.color == PieceColor.white ? 1 : 6;
+
+    // Forward move
+    final newRankIndex = rankIndex + direction;
+    if (newRankIndex >= 0 && newRankIndex < 8) {
+      final newPosition = '${String.fromCharCode('a'.codeUnitAt(0) + fileIndex)}${newRankIndex + 1}';
+      if (_getPieceAt(newPosition) == null) {
+        validMoves.add(newPosition);
+
+        // Double move from starting position
+        if (rankIndex == startingRank) {
+          final doubleRankIndex = rankIndex + 2 * direction;
+          if (doubleRankIndex >= 0 && doubleRankIndex < 8) {
+            final doublePosition = '${String.fromCharCode('a'.codeUnitAt(0) + fileIndex)}${doubleRankIndex + 1}';
+            if (_getPieceAt(doublePosition) == null) {
+              validMoves.add(doublePosition);
+            }
+          }
+        }
+      }
+    }
+
+    // Capture moves
+    for (var i = -1; i <= 1; i += 2) {
+      final newFileIndex = fileIndex + i;
+      if (newFileIndex >= 0 && newFileIndex < 8 && newRankIndex >= 0 && newRankIndex < 8) {
+        final capturePosition = '${String.fromCharCode('a'.codeUnitAt(0) + newFileIndex)}${newRankIndex + 1}';
+        final targetPiece = _getPieceAt(capturePosition);
+        if (targetPiece != null && targetPiece.color != pawn.color) {
+          validMoves.add(capturePosition);
+        }
+      }
+    }
+  }
+
+  void _getKnightMoves(ChessPiece knight, int fileIndex, int rankIndex, List<String> validMoves) {
+    final moves = [
+      [2, 1], [2, -1], [-2, 1], [-2, -1],
+      [1, 2], [1, -2], [-1, 2], [-1, -2]
+    ];
+
+    for (var move in moves) {
+      final newFileIndex = fileIndex + move[0];
+      final newRankIndex = rankIndex + move[1];
+
+      if (newFileIndex >= 0 && newFileIndex < 8 && newRankIndex >= 0 && newRankIndex < 8) {
+        final newPosition = '${String.fromCharCode('a'.codeUnitAt(0) + newFileIndex)}${newRankIndex + 1}';
+        final targetPiece = _getPieceAt(newPosition);
+
+        if (targetPiece == null || targetPiece.color != knight.color) {
+          validMoves.add(newPosition);
+        }
+      }
+    }
+  }
+
+  void _getBishopMoves(ChessPiece bishop, int fileIndex, int rankIndex, List<String> validMoves) {
+    final directions = [
+      [1, 1], [1, -1], [-1, 1], [-1, -1]
+    ];
+
+    for (var direction in directions) {
+      for (var i = 1; i < 8; i++) {
+        final newFileIndex = fileIndex + i * direction[0];
+        final newRankIndex = rankIndex + i * direction[1];
+
+        if (newFileIndex < 0 || newFileIndex >= 8 || newRankIndex < 0 || newRankIndex >= 8) {
+          break;
+        }
+
+        final newPosition = '${String.fromCharCode('a'.codeUnitAt(0) + newFileIndex)}${newRankIndex + 1}';
+        final targetPiece = _getPieceAt(newPosition);
+
+        if (targetPiece == null) {
+          validMoves.add(newPosition);
+        } else {
+          if (targetPiece.color != bishop.color) {
+            validMoves.add(newPosition);
+          }
+          break;
+        }
+      }
+    }
+  }
+
+  void _getRookMoves(ChessPiece rook, int fileIndex, int rankIndex, List<String> validMoves) {
+    final directions = [
+      [1, 0], [-1, 0], [0, 1], [0, -1]
+    ];
+
+    for (var direction in directions) {
+      for (var i = 1; i < 8; i++) {
+        final newFileIndex = fileIndex + i * direction[0];
+        final newRankIndex = rankIndex + i * direction[1];
+
+        if (newFileIndex < 0 || newFileIndex >= 8 || newRankIndex < 0 || newRankIndex >= 8) {
+          break;
+        }
+
+        final newPosition = '${String.fromCharCode('a'.codeUnitAt(0) + newFileIndex)}${newRankIndex + 1}';
+        final targetPiece = _getPieceAt(newPosition);
+
+        if (targetPiece == null) {
+          validMoves.add(newPosition);
+        } else {
+          if (targetPiece.color != rook.color) {
+            validMoves.add(newPosition);
+          }
+          break;
+        }
+      }
+    }
+  }
+
+  void _getKingMoves(ChessPiece king, int fileIndex, int rankIndex, List<String> validMoves) {
+    for (var i = -1; i <= 1; i++) {
+      for (var j = -1; j <= 1; j++) {
+        if (i == 0 && j == 0) continue;
+
+        final newFileIndex = fileIndex + i;
+        final newRankIndex = rankIndex + j;
+
+        if (newFileIndex >= 0 && newFileIndex < 8 && newRankIndex >= 0 && newRankIndex < 8) {
+          final newPosition = '${String.fromCharCode('a'.codeUnitAt(0) + newFileIndex)}${newRankIndex + 1}';
+          final targetPiece = _getPieceAt(newPosition);
+
+          if (targetPiece == null || targetPiece.color != king.color) {
+            validMoves.add(newPosition);
+          }
+        }
+      }
+    }
   }
 
   ChessPiece? _getPieceAt(String position) {
