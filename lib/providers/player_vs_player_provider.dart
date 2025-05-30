@@ -283,9 +283,11 @@ class PlayerVsPlayerProvider with ChangeNotifier {
 
   Future<void> _playSound(String soundType) async {
     if (!_soundEnabled) return;
+    print('Playing sound: $soundType (Sound enabled: $_soundEnabled)'); // Debug print
     if (soundType == 'move') {
       await _soundManager.playMoveSound();
     } else if (soundType == 'capture') {
+      print('Playing capture sound...'); // Debug print
       await _soundManager.playCaptureSound();
     }
   }

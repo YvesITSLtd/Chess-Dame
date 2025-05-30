@@ -28,17 +28,25 @@ class PlayerVsMachineView extends StatefulWidget {
 }
 
 class _PlayerVsMachineViewState extends State<PlayerVsMachineView> {
+  bool _gameOverDialogShown = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Consumer<PlayerVsMachineProvider>(
         builder: (context, provider, child) {
-          // Check for game over and show dialog
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (provider.gameOver && provider.winner != null) {
+          // Check for game over and show dialog only once
+          if (provider.gameOver && provider.winner != null && !_gameOverDialogShown) {
+            _gameOverDialogShown = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
               _showGameOverDialog(context, provider.winner!);
-            }
-          });
+            });
+          }
+
+          // Reset the flag when game is not over (new game started)
+          if (!provider.gameOver) {
+            _gameOverDialogShown = false;
+          }
 
           return Container(
             decoration: BoxDecoration(
@@ -72,7 +80,7 @@ class _PlayerVsMachineViewState extends State<PlayerVsMachineView> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: Text(
             'Game Over!',
@@ -112,15 +120,19 @@ class _PlayerVsMachineViewState extends State<PlayerVsMachineView> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
-                context.read<PlayerVsMachineProvider>().initializeGame();
+                Navigator.of(dialogContext).pop(); // Close dialog first
+                final provider = context.read<PlayerVsMachineProvider>();
+                provider.initializeGame();
+                setState(() {
+                  _gameOverDialogShown = false; // Reset flag
+                });
               },
               child: const Text('New Game'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop(); // Close dialog first
+                Navigator.of(context).pop(); // Go back to previous screen
               },
               child: const Text('Back to Menu'),
             ),
