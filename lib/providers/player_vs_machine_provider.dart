@@ -411,6 +411,7 @@ class PlayerVsMachineState extends BaseGameState {
     super.selectedPosition,
     super.currentTurn,
     super.gameOver,
+    super.winner,
   });
 
   factory PlayerVsMachineState.fromJson(Map<String, dynamic> json) {
@@ -424,6 +425,7 @@ class PlayerVsMachineState extends BaseGameState {
       selectedPosition: json['selectedPosition'],
       currentTurn: PieceColor.values[json['currentTurn']],
       gameOver: json['gameOver'],
+      winner: json['winner'] != null ? PieceColor.values[json['winner']] : null,
     );
   }
 
@@ -438,6 +440,7 @@ class PlayerVsMachineState extends BaseGameState {
       'selectedPosition': selectedPosition,
       'currentTurn': currentTurn.index,
       'gameOver': gameOver,
+      'winner': winner?.index,
     };
   }
 }

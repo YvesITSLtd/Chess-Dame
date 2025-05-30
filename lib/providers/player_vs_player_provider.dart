@@ -353,6 +353,7 @@ class PlayerVsPlayerState extends BaseGameState {
       selectedPosition: json['selectedPosition'],
       currentTurn: PieceColor.values[json['currentTurn']],
       gameOver: json['gameOver'],
+      winner: json['winner'] != null ? PieceColor.values[json['winner']] : null,
     );
   }
 
@@ -367,6 +368,7 @@ class PlayerVsPlayerState extends BaseGameState {
       'selectedPosition': selectedPosition,
       'currentTurn': currentTurn.index,
       'gameOver': gameOver,
+      'winner': winner?.index,
     };
   }
 }

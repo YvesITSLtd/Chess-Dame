@@ -475,11 +475,13 @@ class MachineVsMachineState extends BaseGameState {
     String? selectedPosition,
     PieceColor currentTurn = PieceColor.white,
     bool gameOver = false,
+    PieceColor? winner,
   }) : super(
           pieces: pieces,
           selectedPosition: selectedPosition,
           currentTurn: currentTurn,
           gameOver: gameOver,
+          winner: winner,
         );
 
   Map<String, dynamic> toJson() {
@@ -488,6 +490,7 @@ class MachineVsMachineState extends BaseGameState {
       'selectedPosition': selectedPosition,
       'currentTurn': currentTurn == PieceColor.white ? 'white' : 'black',
       'gameOver': gameOver,
+      'winner': winner == null ? null : (winner == PieceColor.white ? 'white' : 'black'),
     };
   }
 
@@ -501,6 +504,7 @@ class MachineVsMachineState extends BaseGameState {
       selectedPosition: json['selectedPosition'],
       currentTurn: json['currentTurn'] == 'white' ? PieceColor.white : PieceColor.black,
       gameOver: json['gameOver'] ?? false,
+      winner: json['winner'] == null ? null : (json['winner'] == 'white' ? PieceColor.white : PieceColor.black),
     );
   }
 }

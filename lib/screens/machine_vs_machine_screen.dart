@@ -20,35 +20,110 @@ class MachineVsMachineScreen extends StatelessWidget {
   }
 }
 
-class MachineVsMachineView extends StatelessWidget {
+class MachineVsMachineView extends StatefulWidget {
   const MachineVsMachineView({super.key});
 
   @override
+  State<MachineVsMachineView> createState() => _MachineVsMachineViewState();
+}
+
+class _MachineVsMachineViewState extends State<MachineVsMachineView> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              const Color(0xFF009688), // Teal
-              const Color(0xFFE53935), // Red
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              _buildHeader(context),
-              const Expanded(
-                child: ChessBoard(),
+      body: Consumer<MachineVsMachineProvider>(
+        builder: (context, provider, child) {
+          // Check for game over and show dialog
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (provider.gameOver && provider.winner != null) {
+              _showGameOverDialog(context, provider.winner!);
+            }
+          });
+
+          return Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  const Color(0xFF009688), // Teal
+                  const Color(0xFFE53935), // Red
+                ],
               ),
-              _buildControls(context),
+            ),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  _buildHeader(context),
+                  const Expanded(
+                    child: ChessBoard(),
+                  ),
+                  _buildControls(context),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _showGameOverDialog(BuildContext context, PieceColor winner) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text(
+            'Game Over!',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                FontAwesomeIcons.trophy,
+                size: 48,
+                color: Colors.amber,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '${winner == PieceColor.white ? 'White' : 'Black'} Machine Wins!',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'The opposing machine has no valid moves remaining.',
+                style: const TextStyle(fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
             ],
           ),
-        ),
-      ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                context.read<MachineVsMachineProvider>().initializeGame();
+              },
+              child: const Text('New Game'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+              child: const Text('Back to Menu'),
+            ),
+          ],
+        );
+      },
     );
   }
 

@@ -20,35 +20,111 @@ class PlayerVsPlayerScreen extends StatelessWidget {
   }
 }
 
-class PlayerVsPlayerView extends StatelessWidget {
+class PlayerVsPlayerView extends StatefulWidget {
   const PlayerVsPlayerView({super.key});
 
   @override
+  State<PlayerVsPlayerView> createState() => _PlayerVsPlayerViewState();
+}
+
+class _PlayerVsPlayerViewState extends State<PlayerVsPlayerView> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              const Color(0xFF009688), // Teal
-              const Color(0xFFE53935), // Red
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              _buildHeader(context),
-              const Expanded(
-                child: ChessBoard(),
+      body: Consumer<PlayerVsPlayerProvider>(
+        builder: (context, provider, child) {
+          // Check for game over and show dialog
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (provider.gameOver && provider.winner != null) {
+              _showGameOverDialog(context, provider.winner!);
+            }
+          });
+
+          return Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  const Color(0xFF009688), // Teal
+                  const Color(0xFFE53935), // Red
+                ],
               ),
-              _buildControls(context),
+            ),
+            child: SafeArea(
+              child: Column(
+                children: [
+                  _buildHeader(context),
+                  const Expanded(
+                    child: ChessBoard(),
+                  ),
+                  _buildControls(context),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _showGameOverDialog(BuildContext context, PieceColor winner) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Game Over!',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: winner == PieceColor.white ? Colors.white : Colors.black,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                FontAwesomeIcons.trophy,
+                size: 48,
+                color: Colors.amber,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                '${winner == PieceColor.white ? 'White' : 'Black'} Player Wins!',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'The opponent has no valid moves remaining.',
+                style: const TextStyle(fontSize: 14),
+                textAlign: TextAlign.center,
+              ),
             ],
           ),
-        ),
-      ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                context.read<PlayerVsPlayerProvider>().initializeGame();
+              },
+              child: const Text('New Game'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+              child: const Text('Back to Menu'),
+            ),
+          ],
+        );
+      },
     );
   }
 
