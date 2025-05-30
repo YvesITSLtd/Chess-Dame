@@ -27,8 +27,10 @@ class SoundManager {
   Future<void> playCaptureSound() async {
     if (!_soundEnabled) return;
     try {
-      // Use system alert sound for captures (more dramatic)
-      await SystemSound.play(SystemSoundType.alert);
+      // Play multiple clicks for capture sound (more noticeable)
+      await SystemSound.play(SystemSoundType.click);
+      await Future.delayed(const Duration(milliseconds: 50));
+      await SystemSound.play(SystemSoundType.click);
     } catch (e) {
       // Silently handle any sound errors
       print('Capture sound error (non-critical): $e');
