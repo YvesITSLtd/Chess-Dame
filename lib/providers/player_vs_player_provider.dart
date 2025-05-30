@@ -18,11 +18,12 @@ class PlayerVsPlayerProvider with ChangeNotifier {
     _state = PlayerVsPlayerState();
   }
 
-  // Getters
-  List<ChessPiece> get pieces => _state.pieces;
-  String? get selectedPosition => _state.selectedPosition;
-  PieceColor get currentTurn => _state.currentTurn;
+  // Getters for game state
   bool get gameOver => _state.gameOver;
+  PieceColor? get winner => _state.winner;
+  PieceColor get currentTurn => _state.currentTurn;
+  String? get selectedPosition => _state.selectedPosition;
+  List<ChessPiece> get pieces => _state.pieces;
 
   // Load and Save state
   Future<void> loadState() async {
@@ -307,6 +308,10 @@ class PlayerVsPlayerProvider with ChangeNotifier {
     }
     if (!canMove) {
       _state.gameOver = true;
+      // The opponent wins when current player has no moves
+      _state.winner = _state.currentTurn == PieceColor.white 
+          ? PieceColor.black 
+          : PieceColor.white;
     }
   }
 
@@ -334,6 +339,7 @@ class PlayerVsPlayerState extends BaseGameState {
     super.selectedPosition,
     super.currentTurn,
     super.gameOver,
+    super.winner,
   });
 
   factory PlayerVsPlayerState.fromJson(Map<String, dynamic> json) {

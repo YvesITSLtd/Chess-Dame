@@ -5,12 +5,14 @@ abstract class BaseGameState {
   String? selectedPosition;
   PieceColor currentTurn;
   bool gameOver;
+  PieceColor? winner;
 
   BaseGameState({
     List<ChessPiece>? pieces,
     this.selectedPosition,
     this.currentTurn = PieceColor.white,
     this.gameOver = false,
+    this.winner,
   }) : pieces = pieces ?? [];
 
   void initializeBoard() {

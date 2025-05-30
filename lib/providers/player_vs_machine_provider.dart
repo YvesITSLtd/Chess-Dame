@@ -25,6 +25,8 @@ class PlayerVsMachineProvider with ChangeNotifier {
   String? get selectedPosition => _state.selectedPosition;
   PieceColor get currentTurn => _state.currentTurn;
   bool get gameOver => _state.gameOver;
+  PieceColor? get winner => _state.winner;
+
   String get difficulty => _difficulty;
 
   // Load and Save state
@@ -381,6 +383,10 @@ class PlayerVsMachineProvider with ChangeNotifier {
     }
     if (!canMove) {
       _state.gameOver = true;
+      // The opponent wins when current player has no moves
+      _state.winner = _state.currentTurn == PieceColor.white 
+          ? PieceColor.black 
+          : PieceColor.white;
     }
   }
 

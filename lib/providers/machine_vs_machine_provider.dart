@@ -32,6 +32,13 @@ class MachineVsMachineProvider with ChangeNotifier {
   bool get isAutoPlaying => _isAutoPlaying;
   String get difficulty => _difficulty;
 
+  // Getters for game state
+  bool get gameOver => _state.gameOver;
+  PieceColor? get winner => _state.winner;
+  PieceColor get currentTurn => _state.currentTurn;
+  String? get selectedPosition => _state.selectedPosition;
+  List<ChessPiece> get pieces => _state.pieces;
+
   // Load and Save state
   Future<void> loadState() async {
     final prefs = await SharedPreferences.getInstance();
@@ -435,8 +442,29 @@ class MachineVsMachineProvider with ChangeNotifier {
       !p.isCaputured
     );
 
-    if (!whiteKing || !blackKing) {
+    if (!whiteKing) {
       _state.gameOver = true;
+      _state.winner = PieceColor.black;
+    } else if (!blackKing) {
+      _state.gameOver = true;
+      _state.winner = PieceColor.white;
+    } else {
+      // Check if current player has no valid moves
+      bool canMove = false;
+      for (final piece in _state.pieces.where(
+        (p) => p.color == _state.currentTurn && !p.isCaputured)) {
+        if (getValidMoves(piece).isNotEmpty) {
+          canMove = true;
+          break;
+        }
+      }
+      if (!canMove) {
+        _state.gameOver = true;
+        // The opponent wins when current player has no moves
+        _state.winner = _state.currentTurn == PieceColor.white 
+            ? PieceColor.black 
+            : PieceColor.white;
+      }
     }
   }
 }
