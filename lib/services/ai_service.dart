@@ -7,7 +7,7 @@ import 'dart:developer' as developer;
 class AIService {
   // Get API key from environment variables
   static String get geminiApiKey => dotenv.env['GEMINI_API_KEY'] ?? '';
-  static const String geminiModel = 'gemini-1.0-pro';
+  static const String geminiModel = 'gemini-pro';
 
   // Tracking response source
   String _responseSource = '';
@@ -228,7 +228,7 @@ Your response should:
   // Call Gemini API
   Future<String> _callGeminiAPI(String prompt) async {
     final url = Uri.parse(
-      'https://generativelanguage.googleapis.com/v1beta/models/$geminiModel:generateContent?key=$geminiApiKey'
+      'https://generativelanguage.googleapis.com/v1/models/$geminiModel:generateContent?key=$geminiApiKey'
     );
 
     final Map<String, dynamic> requestBody = {
@@ -267,8 +267,8 @@ Your response should:
             responseData['candidates'][0]['content']['parts'] != null &&
             responseData['candidates'][0]['content']['parts'].isNotEmpty) {
 
-          return responseData['candidates'][0]['content']['parts'][0]['text'] ??
-              'No text found in response';
+          final part = responseData['candidates'][0]['content']['parts'][0];
+          return part['text'] ?? part['textAsHtml'] ?? 'No text found in response';
         }
 
         return 'Could not parse response: ${response.body}';
